@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="aegis_bg">#080B13</color>
+    <color name="aegis_surface">#111827</color>
+    <color name="aegis_surface_alt">#1A2336</color>
+    <color name="aegis_border">#24314A</color>
+    <color name="aegis_text_primary">#F8FAFC</color>
+    <color name="aegis_text_secondary">#94A3B8</color>
+    <color name="aegis_accent_local">#38BDF8</color>
+    <color name="aegis_accent_cloud">#A78BFA</color>
+    <color name="aegis_accent_allow">#10B981</color>
+    <color name="aegis_accent_hitl">#F59E0B</color>
+    <color name="aegis_accent_block">#EF4444</color>
+    <color name="aegis_shielded_grey">#64748B</color>
+</resources>

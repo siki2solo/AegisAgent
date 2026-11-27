@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AegisAgent</string>
+    <string name="subtitle_obsidian_shield">Obsidian Shield · Deterministic Safety Companion</string>
+    <string name="accessibility_service_label">AegisAgent Guardrail Bridge</string>
+    <string name="accessibility_service_description">Reads active screen structure strictly outside blacklisted banking/vault apps, enforces PolicyGatekeeper confirmations, and listens for Volume-Down double-press Kill Switch.</string>
+    <string name="tile_label">AegisAgent Orb</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_brains">Brains</string>
+    <string name="tab_shield">Shield</string>
+    <string name="tab_audit">Audit</string>
+    <string name="action_start_orb">Launch Orb</string>
+    <string name="action_stop_orb">Stop Orb</string>
+</resources>

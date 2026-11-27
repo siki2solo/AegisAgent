@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.AegisAgent" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/aegis_bg</item>
+        <item name="android:statusBarColor">@color/aegis_bg</item>
+        <item name="android:navigationBarColor">@color/aegis_surface</item>
+        <item name="colorPrimary">@color/aegis_accent_local</item>
+        <item name="colorAccent">@color/aegis_accent_cloud</item>
+    </style>
+</resources>
