@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AegisAgent</string>
+    <string name="accessibility_service_label">AegisAgent Local Assistant</string>
+    <string name="accessibility_service_description">User-authorized on-device accessibility assistant. Operates exclusively on allowlisted apps, skips password and secure windows, and stores encrypted logs locally.</string>
+</resources>
