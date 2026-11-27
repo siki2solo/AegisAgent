@@ -102,9 +102,9 @@ class LocalRagStore(context: Context) :
 
     fun searchFts5(query: String, limit: Int = 4, onlySelected: Boolean = true): List<RagHit> {
         val cleaned = query
-            .replace(Regex("[^a-zA-Z0-9\s]"), " ")
+            .replace(Regex("[^a-zA-Z0-9\\s]"), " ")
             .trim()
-            .split(Regex("\s+"))
+            .split(Regex("\\s+"))
             .filter { it.length >= 2 }
             .joinToString(" OR ")
         if (cleaned.isBlank()) return emptyList()

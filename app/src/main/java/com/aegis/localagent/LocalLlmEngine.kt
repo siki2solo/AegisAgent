@@ -2,6 +2,8 @@ package com.aegis.localagent
 
 import android.content.Context
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
+import com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession
+import com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession.LlmInferenceSessionOptions
 import org.json.JSONObject
 import java.io.File
 
@@ -54,8 +56,7 @@ class LocalLlmEngine(private val context: Context) {
             val opts = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(modelFile.absolutePath)
                 .setMaxTokens(768)
-                .setTemperature(0.2f)
-                .setTopK(32)
+                .setMaxTopK(40)
                 .build()
             val instance = LlmInference.createFromOptions(context, opts)
             if (useSecondary) {
@@ -91,7 +92,14 @@ class LocalLlmEngine(private val context: Context) {
             append("VisibleNodes: ").append(sanitizedNodesJson)
         }
 
-        val raw = activeEngine.generateResponse(prompt).trim()
+        val sessionOpts = LlmInferenceSessionOptions.builder()
+            .setTemperature(0.2f)
+            .setTopK(32)
+            .build()
+        val raw = LlmInferenceSession.createFromOptions(activeEngine, sessionOpts).use { session ->
+            session.addQueryChunk(prompt)
+            session.generateResponse().trim()
+        }
         val jsonStart = raw.indexOf('{')
         val jsonEnd = raw.lastIndexOf('}')
         if (jsonStart < 0 || jsonEnd <= jsonStart) {
