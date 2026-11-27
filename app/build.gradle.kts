@@ -20,8 +20,8 @@ android {
         applicationId = "com.aegis.localagent"
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.3"
 
         vectorDrawables {
             useSupportLibrary = true

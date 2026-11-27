@@ -16,34 +16,63 @@ data class PlannedUiAction(
 class LocalLlmEngine(private val context: Context) {
 
     val configuredModelName: String = "Gemma 3 1B Instruct"
-    val configuredModelPath: String = "/data/local/tmp/llm/gemma-3-1b-it-int4.task"
-    private var engine: LlmInference? = null
+    val primaryModelPath: String = "/data/local/tmp/llm/gemma-3-1b-it-int4.task"
+    val secondaryModelPath: String = "/data/local/tmp/llm/gemma-3n-e2b-it-int4.task"
+    val autoRoutingEnabled: Boolean = true
+
+    private var primaryEngine: LlmInference? = null
+    private var secondaryEngine: LlmInference? = null
 
     fun isModelFilePresent(): Boolean {
-        return File(configuredModelPath).exists()
+        return File(primaryModelPath).exists() || File(secondaryModelPath).exists()
     }
 
-    fun ensureLoaded(): Result<Unit> {
-        if (engine != null) return Result.success(Unit)
-        val modelFile = File(configuredModelPath)
+    fun classifyComplexityLevel(goal: String, hasImageAttachment: Boolean): Int {
+        val lower = goal.lowercase()
+        if (lower.contains("mcp") || lower.contains("traceback") || lower.contains("patch")) {
+            return 3
+        }
+        if (hasImageAttachment || lower.contains("pdf") || lower.contains("rag") || lower.contains("script")) {
+            return 2
+        }
+        return 1
+    }
+
+    fun ensureLoadedForLevel(level: Int): Result<String> {
+        val useSecondary = autoRoutingEnabled && level >= 2 && File(secondaryModelPath).exists()
+        val chosenPath = if (useSecondary) secondaryModelPath else primaryModelPath
+        val existing = if (useSecondary) secondaryEngine else primaryEngine
+        if (existing != null) return Result.success(chosenPath)
+
+        val modelFile = File(chosenPath)
         if (!modelFile.exists()) {
             return Result.failure(
-                IllegalStateException("Local model missing at $configuredModelPath")
+                IllegalStateException("Local model missing at $chosenPath")
             )
         }
         return runCatching {
             val opts = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(modelFile.absolutePath)
-                .setMaxTokens(512)
+                .setMaxTokens(768)
                 .setTemperature(0.2f)
                 .setTopK(32)
                 .build()
-            engine = LlmInference.createFromOptions(context, opts)
+            val instance = LlmInference.createFromOptions(context, opts)
+            if (useSecondary) {
+                secondaryEngine = instance
+            } else {
+                primaryEngine = instance
+            }
+            chosenPath
         }
     }
 
-    fun planNextAction(goal: String, sanitizedNodesJson: String): PlannedUiAction {
-        val activeEngine = engine
+    fun planNextAction(goal: String, sanitizedNodesJson: String, level: Int = 1): PlannedUiAction {
+        val activeEngine = if (autoRoutingEnabled && level >= 2) {
+            secondaryEngine ?: primaryEngine
+        } else {
+            primaryEngine
+        }
         if (activeEngine == null) {
             return PlannedUiAction(
                 action = "noop",
@@ -55,7 +84,7 @@ class LocalLlmEngine(private val context: Context) {
         }
 
         val prompt = buildString {
-            append("You are an offline Android accessibility planner. ")
+            append("You are an offline Android Level ").append(level).append(" agent. ")
             append("Return ONLY one compact JSON object with keys: ")
             append("action (tap|type|back|done), nodeId, textInput, requiresApproval (boolean), reason.\n")
             append("Goal: ").append(goal).append("\n")
@@ -84,7 +113,9 @@ class LocalLlmEngine(private val context: Context) {
     }
 
     fun release() {
-        engine?.close()
-        engine = null
+        primaryEngine?.close()
+        secondaryEngine?.close()
+        primaryEngine = null
+        secondaryEngine = null
     }
 }
